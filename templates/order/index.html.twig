@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+{% block title %}Orders{% endblock %}
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+    </style>
+    <div class="example-wrapper">
+        <a href="{{ path('app_order_new') }}">Create New Order</a>
+        <br>
+        <table>
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>Package</th>
+                <th>Consumer</th>
+                <th>Date Created</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td><a href="{{ path('app_order_view', {id: order.id}) }}">{{ order.id }}</a></td>
+                    <td>{{ order.package.name }}</td>
+                    <td>{{ order.consumer.firstName }} {{ order.consumer.lastName }}</td>
+                    <td>{{ order.createdAt ? order.createdAt|date('Y-m-d H:i') : '' }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -25,8 +25,7 @@ class Package
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photo = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
+
 
     #[ORM\ManyToOne(inversedBy: 'packages')]
     #[ORM\JoinColumn(nullable: false)]
@@ -38,6 +37,14 @@ class Package
 
     #[ORM\OneToOne(mappedBy: 'package', cascade: ['persist', 'remove'])]
     private ?Order $consumer_order = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $created_at = null;
+
+    public function __construct()
+    {
+        $this->created_at = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {

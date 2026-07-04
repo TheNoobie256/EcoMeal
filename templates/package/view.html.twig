@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+    </style>
+    <div class="example-wrapper">
+        <p>{{ package.id }}</p>
+        <p>{{ package.name }}</p>
+        <p>{{ package.description }}</p>
+        <p>{{ package.price }}</p>
+        <p>{{ package.photo }}</p>
+        <p>Category: {{ package.category.name }}</p>
+        <p>Business: {{ package.business.name }}</p>
+        <p>Created: {{ package.createdAt ? package.createdAt|date('Y-m-d H:i') : '' }}</p>
+        <a href="{{ path('app_package') }}">Back</a>
+    </div>
+{% endblock %}

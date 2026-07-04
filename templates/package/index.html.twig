@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+{% block title %}Packages{% endblock %}
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 1000px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+    </style>
+    <div class="example-wrapper">
+        <a href="{{ path('app_package_new') }}">Create New Package</a>
+        <br>
+        <table>
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Business</th>
+                <th>Created At</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for package in packages %}
+                <tr>
+                    <td><a href="{{ path('app_package_view', {id: package.id}) }}">{{ package.id }}</a></td>
+                    <td>{{ package.name }}</td>
+                    <td>{{ package.description }}</td>
+                    <td>{{ package.price }}</td>
+                    <td>{{ package.category.name }}</td>
+                    <td>{{ package.business.name }}</td>
+                    <td>{{ package.createdAt ? package.createdAt|date('Y-m-d H:i') : '' }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

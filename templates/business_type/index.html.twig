@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+{% block title %}Business Types{% endblock %}
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+    </style>
+    <div class="example-wrapper">
+        <a href="{{ path('app_business_type_new') }}">Create New Business Type</a>
+        <br>
+        <table>
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for type in businessTypes %}
+                <tr>
+                    <td><a href="{{ path('app_business_type_view', {id: type.id}) }}">{{ type.id }}</a></td>
+                    <td>{{ type.name }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
