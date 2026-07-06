@@ -2,7 +2,6 @@
 
 namespace App\Form;
 
-use App\Entity\Business;
 use App\Entity\Category;
 use App\Entity\Package;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -24,10 +23,6 @@ class PackageFormType extends AbstractType
             ->add('photo', TextType::class)
             ->add('category', EntityType::class, [
                 'class' => Category::class,
-                'choice_label' => 'name',
-            ])
-            ->add('business', EntityType::class, [
-                'class' => Business::class,
                 'choice_label' => 'name',
             ])
             ->add('submit', SubmitType::class);
