@@ -3,9 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Business;
+use App\Entity\Package;
 use App\Form\BusinessFormType;
+use App\Form\PackageFormType;
 use App\Repository\BusinessRepository;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,5 +50,53 @@ final class BusinessController extends AbstractController
         return $this->render('/business/new.html.twig',[
             'form' => $form,
         ]);
+    }
+    #[Route('/business/{id}/edit', name: 'app_business_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Business $business, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(BusinessFormType::class, $business);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $entityManager->persist($business);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_business');
+        }
+
+        return $this->render('/business/new.html.twig',[
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/business/{id}/remove', name: 'app_business_del', methods: ['GET'])]
+    public function remove(Business $business, EntityManagerInterface $entityManager): Response
+    {
+        $entityManager->remove($business);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_business');
+    }
+
+    #[Route('/business/{id}/add_package', name: 'app_business_add_package')]
+    public function addPackage(Request $request,Business $business, EntityManagerInterface $entityManager): Response
+    {
+        {
+            $package = new Package();
+            $package->setBusiness($business);
+            $form = $this->createForm(PackageFormType::class, $package);
+            $form->handleRequest($request);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $entityManager->persist($package);
+                $entityManager->flush();
+
+                return $this->redirectToRoute('app_package');
+            }
+
+            return $this->render('package/new.html.twig', [
+                'form' => $form,
+            ]);
+        }
     }
 }

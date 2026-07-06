@@ -26,6 +26,9 @@
         <p>{{ business.businessType.name }}</p>
 
         <a href="{{ path('app_business') }}">Back</a>
+        <a href="{{ path('app_business_del', {id:business.id}) }}">Delete</a>
+        <a href="{{ path('app_business_edit', {id:business.id}) }}">Edit</a>
+        <a href="{{ path('app_business_add_package', {id:business.id}) }}">Add package</a>
     </div>
 
 {% endblock %}

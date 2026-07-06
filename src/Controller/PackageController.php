@@ -31,22 +31,4 @@ final class PackageController extends AbstractController
         ]);
     }
 
-    #[Route('/new/package', name: 'app_package_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $package = new Package();
-        $form = $this->createForm(PackageFormType::class, $package);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($package);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_package');
-        }
-
-        return $this->render('package/new.html.twig', [
-            'form' => $form,
-        ]);
-    }
 }
