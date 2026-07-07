@@ -1,18 +1,39 @@
 {% extends 'base.html.twig' %}
+{% block title %}View Order{% endblock %}
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
-    </style>
-    <div class="example-wrapper">
-        <p>Order ID: {{ order.id }}</p>
-        <p>Package: {{ order.package.name }}</p>
-        <p>Consumer: {{ order.consumer.firstName }} {{ order.consumer.lastName }}</p>
-        <p>Created: {{ order.createdAt ? order.createdAt|date('Y-m-d H:i') : '' }}</p>
-        <a href="{{ path('app_order') }}">Back</a>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="detail-container overflow-hidden">
+                    <div class="bg-lime p-4 d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0 fw-bold text-dark">Order Details</h2>
+                        <span class="badge bg-dark rounded-pill fs-6">ID: {{ order.id }}</span>
+                    </div>
+                    <div class="p-0">
+                        <ul class="list-group list-group-flush fs-5">
+                            <li class="list-group-item p-4 d-flex justify-content-between align-items-center">
+                                <span class="text-muted fw-bold">Package</span>
+                                <span class="text-end fw-bold">{{ order.package.name }}</span>
+                            </li>
+                            <li class="list-group-item p-4 d-flex justify-content-between align-items-center">
+                                <span class="text-muted fw-bold">Consumer</span>
+                                <span class="text-end">{{ order.consumer.firstName }} {{ order.consumer.lastName }}</span>
+                            </li>
+                            <li class="list-group-item p-4 d-flex justify-content-between align-items-center">
+                                <span class="text-muted fw-bold">Date Ordered</span>
+                                <span class="text-end">{{ order.createdAt ? order.createdAt|date('F j, Y, g:i a') : '' }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-light d-flex justify-content-between flex-wrap gap-2">
+                        <a href="{{ path('app_order') }}" class="btn btn-outline-secondary rounded-pill fw-bold px-4">← Back</a>
+                        <div class="d-flex gap-2">
+                            <a href="{{ path('app_order_edit', {id: order.id}) }}" class="btn btn-warning rounded-pill fw-bold px-4 shadow-sm">Edit</a>
+                            <a href="{{ path('app_order_del', {id: order.id}) }}" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

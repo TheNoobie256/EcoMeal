@@ -1,16 +1,23 @@
 {% extends 'base.html.twig' %}
+{% block title %}View Business Type{% endblock %}
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
-    </style>
-    <div class="example-wrapper">
-        <p>{{ businessType.id }}</p>
-        <p>{{ businessType.name }}</p>
-        <a href="{{ path('app_business_type') }}">Back</a>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="detail-container overflow-hidden">
+                    <div class="bg-lime p-4 d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0 fw-bold text-dark">{{ businessType.name }}</h2>
+                        <span class="badge bg-dark rounded-pill fs-6">ID: {{ businessType.id }}</span>
+                    </div>
+                    <div class="p-4 bg-light d-flex justify-content-between flex-wrap gap-2">
+                        <a href="{{ path('app_business_type') }}" class="btn btn-outline-secondary rounded-pill fw-bold px-4">← Back</a>
+                        <div class="d-flex gap-2">
+                            <a href="{{ path('app_business_type_edit', {id: businessType.id}) }}" class="btn btn-warning rounded-pill fw-bold px-4 shadow-sm">Edit</a>
+                            <a href="{{ path('app_business_type_del', {id: businessType.id}) }}" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

@@ -1,32 +1,37 @@
 {% extends 'base.html.twig' %}
 {% block title %}Categories{% endblock %}
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
-    </style>
-    <div class="example-wrapper">
-        <a href="{{ path('app_category_new') }}">Create New Category</a>
-        <br>
-        <table>
-            <thead>
-            <tr>
-                <th>id</th>
-                <th>Name</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for category in categories %}
-                <tr>
-                    <td><a href="{{ path('app_category_view', {id: category.id}) }}">{{ category.id }}</a></td>
-                    <td>{{ category.name }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="display-5 fw-bold text-dark mb-0">Categories</h1>
+            <a href="{{ path('app_category_new') }}" class="btn btn-dark btn-lg rounded-pill shadow-sm fw-bold">
+                + Create New Category
+            </a>
+        </div>
+
+        <div class="table-container p-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-lime text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                    <tr>
+                        <th class="ps-4 py-3 rounded-start">ID</th>
+                        <th class="py-3">Name</th>
+                        <th class="text-end pe-4 py-3 rounded-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                    {% for category in categories %}
+                        <tr>
+                            <td class="ps-4"><strong>{{ category.id }}</strong></td>
+                            <td class="fw-bold">{{ category.name }}</td>
+                            <td class="text-end pe-4">
+                                <a href="{{ path('app_category_view', {id: category.id}) }}" class="btn btn-sm btn-outline-dark rounded-pill fw-bold px-3">View Details</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 {% endblock %}

@@ -1,19 +1,29 @@
 {% extends 'base.html.twig' %}
+{% block title %}New Consumer{% endblock %}
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
-    </style>
-    <div class="example-wrapper">
-        {{ form_start(form) }}
-        {{ form_row(form.firstName) }}
-        {{ form_row(form.lastName) }}
-        {{ form_row(form.phoneNumber) }}
-        {{ form_row(form.submit) }}
-        {{ form_end(form) }}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="form-container overflow-hidden">
+                    <div class="bg-lime p-4">
+                        <h3 class="mb-0 fw-bold text-dark">Add / Edit Consumer</h3>
+                    </div>
+                    <div class="p-4 p-md-5">
+                        {{ form_start(form) }}
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.firstName) }}</div>
+                            <div class="col-md-6">{{ form_row(form.lastName) }}</div>
+                        </div>
+                        {{ form_row(form.phoneNumber) }}
+
+                        <div class="d-grid gap-2 mt-4 pt-2">
+                            {{ form_row(form.submit, {'attr': {'class': 'btn btn-dark btn-lg rounded-pill shadow-sm fw-bold w-100'}}) }}
+                            <a href="{{ path('app_consumer') }}" class="btn btn-light rounded-pill text-muted fw-bold">Cancel</a>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

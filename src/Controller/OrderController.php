@@ -11,27 +11,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route('/order')]
 final class OrderController extends AbstractController
 {
-    #[Route('/order', name: 'app_order')]
+    #[Route('', name: 'app_order', methods: ['GET'])]
     public function index(OrderRepository $orderRepository): Response
     {
-        $orders = $orderRepository->findAll();
-
         return $this->render('order/index.html.twig', [
-            'orders' => $orders,
+            'orders' => $orderRepository->findAll(),
         ]);
     }
 
-    #[Route('/order/{id}', name: 'app_order_view')]
-    public function view(Order $order): Response
-    {
-        return $this->render('order/view.html.twig', [
-            'order' => $order,
-        ]);
-    }
-
-    #[Route('/new/order', name: 'app_order_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_order_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $order = new Order();
@@ -48,5 +39,38 @@ final class OrderController extends AbstractController
         return $this->render('order/new.html.twig', [
             'form' => $form,
         ]);
+    }
+
+    #[Route('/{id}', name: 'app_order_view', methods: ['GET'])]
+    public function view(Order $order): Response
+    {
+        return $this->render('order/view.html.twig', [
+            'order' => $order,
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'app_order_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Order $order, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(OrderFormType::class, $order);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            return $this->redirectToRoute('app_order');
+        }
+
+        return $this->render('order/new.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}/remove', name: 'app_order_del', methods: ['GET'])]
+    public function remove(Order $order, EntityManagerInterface $entityManager): Response
+    {
+        $entityManager->remove($order);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_order');
     }
 }

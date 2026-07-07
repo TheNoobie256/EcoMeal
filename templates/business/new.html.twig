@@ -1,31 +1,34 @@
 {% extends 'base.html.twig' %}
-
-
+{% block title %}New Business{% endblock %}
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="form-container overflow-hidden">
+                    <div class="bg-lime p-4">
+                        <h3 class="mb-0 fw-bold text-dark">Add / Edit Business</h3>
+                    </div>
+                    <div class="p-4 p-md-5">
+                        {{ form_start(form) }}
+                        {{ form_row(form.name) }}
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.city) }}</div>
+                            <div class="col-md-6">{{ form_row(form.street) }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">{{ form_row(form.houseNumber) }}</div>
+                            <div class="col-md-6">{{ form_row(form.phoneNumber) }}</div>
+                        </div>
+                        {{ form_row(form.businessType) }}
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
-
-    <div class="example-wrapper">
-        {{ form_start(form) }}
-            {{ form_row(form.name) }}
-            {{ form_row(form.city) }}
-            {{ form_row(form.street) }}
-            {{ form_row(form.houseNumber) }}
-            {{ form_row(form.phoneNumber) }}
-            {{ form_row(form.businessType) }}
-            {{ form_row(form.submit) }}
-        {{ form_end(form) }}
+                        <div class="d-grid gap-2 mt-4 pt-2">
+                            {{ form_row(form.submit, {'attr': {'class': 'btn btn-dark btn-lg rounded-pill shadow-sm fw-bold w-100'}}) }}
+                            <a href="{{ path('app_business') }}" class="btn btn-light rounded-pill text-muted fw-bold">Cancel</a>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
 {% endblock %}
