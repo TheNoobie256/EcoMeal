@@ -16,8 +16,8 @@ class ConsumerFormType extends AbstractType
         $builder
             ->add('firstName', TextType::class)
             ->add('lastName', TextType::class)
-            ->add('phoneNumber', TextType::class)
-            ->add('submit', SubmitType::class);
+            ->add('phoneNumber', TextType::class);
+            # ->add('submit', SubmitType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)

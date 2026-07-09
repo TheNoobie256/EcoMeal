@@ -20,13 +20,6 @@ class OrderFormType extends AbstractType
                 'class' => Package::class,
                 'choice_label' => 'name',
             ])
-            ->add('consumer', EntityType::class, [
-                'class' => Consumer::class,
-                // Concatenates first and last name for the dropdown display
-                'choice_label' => function (Consumer $consumer) {
-                    return $consumer->getFirstName() . ' ' . $consumer->getLastName();
-                },
-            ])
             ->add('submit', SubmitType::class);
     }
 

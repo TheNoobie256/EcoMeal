@@ -17,7 +17,7 @@
                         {{ form_row(form.phoneNumber) }}
 
                         <div class="d-grid gap-2 mt-4 pt-2">
-                            {{ form_row(form.submit, {'attr': {'class': 'btn btn-dark btn-lg rounded-pill shadow-sm fw-bold w-100'}}) }}
+                            <button type="submit" class="btn btn-dark btn-lg rounded-pill shadow-sm fw-bold w-100">Submit</button>
                             <a href="{{ path('app_consumer') }}" class="btn btn-light rounded-pill text-muted fw-bold">Cancel</a>
                         </div>
                         {{ form_end(form) }}

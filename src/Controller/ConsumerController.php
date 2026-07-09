@@ -17,6 +17,9 @@ final class ConsumerController extends AbstractController
     #[Route('', name: 'app_consumer', methods: ['GET'])]
     public function index(ConsumerRepository $consumerRepository): Response
     {
+        // Only Admins should see the full master list of consumers
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         return $this->render('consumer/index.html.twig', [
             'consumers' => $consumerRepository->findAll(),
         ]);
@@ -25,6 +28,9 @@ final class ConsumerController extends AbstractController
     #[Route('/new', name: 'app_consumer_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        // Public registration handles consumers. If manual creation is needed here, only Admins can do it.
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $consumer = new Consumer();
         $form = $this->createForm(ConsumerFormType::class, $consumer);
         $form->handleRequest($request);
@@ -44,6 +50,8 @@ final class ConsumerController extends AbstractController
     #[Route('/{id}', name: 'app_consumer_view', methods: ['GET'])]
     public function view(Consumer $consumer): Response
     {
+        $this->checkConsumerAccess($consumer);
+
         return $this->render('consumer/view.html.twig', [
             'consumer' => $consumer,
         ]);
@@ -52,11 +60,18 @@ final class ConsumerController extends AbstractController
     #[Route('/{id}/edit', name: 'app_consumer_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Consumer $consumer, EntityManagerInterface $entityManager): Response
     {
+        $this->checkConsumerAccess($consumer);
+
         $form = $this->createForm(ConsumerFormType::class, $consumer);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+
+            if (!$this->isGranted('ROLE_ADMIN')) {
+                return $this->redirectToRoute('app_consumer_view', ['id' => $consumer->getId()]);
+            }
+
             return $this->redirectToRoute('app_consumer');
         }
 
@@ -68,9 +83,29 @@ final class ConsumerController extends AbstractController
     #[Route('/{id}/remove', name: 'app_consumer_del', methods: ['GET'])]
     public function remove(Consumer $consumer, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $entityManager->remove($consumer);
         $entityManager->flush();
 
         return $this->redirectToRoute('app_consumer');
+    }
+
+    private function checkConsumerAccess(Consumer $consumer): void
+    {
+        // Admins pass immediately
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return;
+        }
+
+        $user = $this->getUser();
+
+        if ($this->isGranted('ROLE_CONSUMER')) {
+            if (!$user->getConsumer() || $user->getConsumer()->getId() !== $consumer->getId()) {
+                throw $this->createAccessDeniedException('You can only view your own profile.');
+            }
+        } else {
+            throw $this->createAccessDeniedException('Access Denied.');
+        }
     }
 }

@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Access Denied (403){% endblock %}
+
+{% block body %}
+    <div class="container py-5 text-center">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+
+                <div class="detail-container overflow-hidden mt-5 shadow-lg">
+                    {# A striking red header for the 403 status #}
+                    <div class="bg-danger p-4">
+                        <h1 class="display-2 fw-bold text-white mb-0" style="letter-spacing: 2px;">403</h1>
+                    </div>
+
+                    <div class="p-4 p-md-5 bg-white">
+                        <h3 class="fw-bold text-dark mb-3">Access Denied</h3>
+                        <p class="text-muted fs-5 mb-4">
+                            Oops! It looks like you've wandered out of bounds. You don't have permission to view this page or perform this action.
+                        </p>
+
+                        {% if exception is defined and exception.message and exception.message != 'Access Denied.' %}
+                            <div class="alert alert-light border rounded-4 mb-4 text-secondary text-start shadow-sm">
+                                <i class="fw-bold">Reason:</i> {{ exception.message }}
+                            </div>
+                        {% endif %}
+
+                        <div class="mt-4">
+                            <a href="{{ path('app_package') }}" class="btn btn-dark btn-lg rounded-pill shadow-sm fw-bold px-5">
+                                ← Return to Safety
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -17,6 +17,8 @@ final class PackageController extends AbstractController
     #[Route('', name: 'app_package', methods: ['GET'])]
     public function index(PackageRepository $packageRepository): Response
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         return $this->render('package/index.html.twig', [
             'packages' => $packageRepository->findAll(),
         ]);
@@ -25,7 +27,16 @@ final class PackageController extends AbstractController
     #[Route('/new', name: 'app_package_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isGranted('ROLE_BUSINESS') && !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('Only businesses can create packages.');
+        }
+
         $package = new Package();
+
+        if ($this->isGranted('ROLE_BUSINESS')) {
+            $package->setBusiness($this->getUser()->getBusiness());
+        }
+
         $form = $this->createForm(PackageFormType::class, $package);
         $form->handleRequest($request);
 
@@ -44,6 +55,8 @@ final class PackageController extends AbstractController
     #[Route('/{id}', name: 'app_package_view', methods: ['GET'])]
     public function view(Package $package): Response
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         return $this->render('package/view.html.twig', [
             'package' => $package,
         ]);
@@ -52,6 +65,8 @@ final class PackageController extends AbstractController
     #[Route('/{id}/edit', name: 'app_package_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Package $package, EntityManagerInterface $entityManager): Response
     {
+        $this->checkPackageAccess($package);
+
         $form = $this->createForm(PackageFormType::class, $package);
         $form->handleRequest($request);
 
@@ -68,9 +83,27 @@ final class PackageController extends AbstractController
     #[Route('/{id}/remove', name: 'app_package_del', methods: ['GET'])]
     public function remove(Package $package, EntityManagerInterface $entityManager): Response
     {
+        $this->checkPackageAccess($package);
+
         $entityManager->remove($package);
         $entityManager->flush();
 
         return $this->redirectToRoute('app_package');
+    }
+
+    private function checkPackageAccess(Package $package): void
+    {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return;
+        }
+
+        if ($this->isGranted('ROLE_BUSINESS')) {
+            if ($package->getBusiness() !== $this->getUser()->getBusiness()) {
+                throw $this->createAccessDeniedException('You can only modify your own packages.');
+            }
+        } else {
+            // Consumers hit this block
+            throw $this->createAccessDeniedException('You do not have permission to modify packages.');
+        }
     }
 }
