@@ -17,7 +17,6 @@ final class ConsumerController extends AbstractController
     #[Route('', name: 'app_consumer', methods: ['GET'])]
     public function index(ConsumerRepository $consumerRepository): Response
     {
-        // Only Admins should see the full master list of consumers
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         return $this->render('consumer/index.html.twig', [
@@ -28,7 +27,6 @@ final class ConsumerController extends AbstractController
     #[Route('/new', name: 'app_consumer_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        // Public registration handles consumers. If manual creation is needed here, only Admins can do it.
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $consumer = new Consumer();
@@ -93,7 +91,6 @@ final class ConsumerController extends AbstractController
 
     private function checkConsumerAccess(Consumer $consumer): void
     {
-        // Admins pass immediately
         if ($this->isGranted('ROLE_ADMIN')) {
             return;
         }
