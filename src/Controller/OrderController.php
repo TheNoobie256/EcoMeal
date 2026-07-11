@@ -25,7 +25,6 @@ final class OrderController extends AbstractController
         if ($this->isGranted('ROLE_ADMIN')) {
             $orders = $orderRepository->findAll();
         } elseif ($this->isGranted('ROLE_BUSINESS')) {
-
             $orders = $orderRepository->createQueryBuilder('o')
                 ->join('o.package', 'p')
                 ->where('p.business = :business')
@@ -46,11 +45,13 @@ final class OrderController extends AbstractController
     #[Route('/new', name: 'app_order_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_BUSINESS')) {
+            throw $this->createAccessDeniedException('Only registered consumers can place orders.');
+        }
 
         $this->denyAccessUnlessGranted('ROLE_CONSUMER');
 
         $order = new Order();
-
         $order->setConsumer($this->getUser()->getConsumer());
 
         $form = $this->createForm(OrderFormType::class, $order);
@@ -81,6 +82,10 @@ final class OrderController extends AbstractController
     #[Route('/{id}/edit', name: 'app_order_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Order $order, EntityManagerInterface $entityManager): Response
     {
+        if ($this->isGranted('ROLE_BUSINESS') || $this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('Only the consumer who placed the order can edit it.');
+        }
+
         $this->checkOrderAccess($order);
 
         $form = $this->createForm(OrderFormType::class, $order);
@@ -99,6 +104,10 @@ final class OrderController extends AbstractController
     #[Route('/{id}/remove', name: 'app_order_del', methods: ['GET'])]
     public function remove(Order $order, EntityManagerInterface $entityManager): Response
     {
+        if ($this->isGranted('ROLE_BUSINESS')) {
+            throw $this->createAccessDeniedException('Businesses cannot delete orders.');
+        }
+
         $this->checkOrderAccess($order);
 
         $entityManager->remove($order);

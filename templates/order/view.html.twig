@@ -1,37 +1,55 @@
 {% extends 'base.html.twig' %}
-{% block title %}View Order{% endblock %}
+
+{% block title %}Order Details{% endblock %}
+
 {% block body %}
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="detail-container overflow-hidden">
+                <div class="detail-container overflow-hidden shadow-sm">
+
+                    {# Header #}
                     <div class="bg-lime p-4 d-flex justify-content-between align-items-center">
-                        <h2 class="mb-0 fw-bold text-dark">Order Details</h2>
-                        <span class="badge bg-dark rounded-pill fs-6">ID: {{ order.id }}</span>
+                        <h2 class="mb-0 fw-bold text-dark">Order #{{ order.id }}</h2>
                     </div>
+
+                    {# Details #}
                     <div class="p-0">
                         <ul class="list-group list-group-flush fs-5">
                             <li class="list-group-item p-4 d-flex justify-content-between align-items-center">
                                 <span class="text-muted fw-bold">Package</span>
-                                <span class="text-end fw-bold">{{ order.package.name }}</span>
+                                <span class="fw-bold">{{ order.package.name }}</span>
                             </li>
                             <li class="list-group-item p-4 d-flex justify-content-between align-items-center">
                                 <span class="text-muted fw-bold">Consumer</span>
-                                <span class="text-end">{{ order.consumer.firstName }} {{ order.consumer.lastName }}</span>
+                                <span class="fw-bold">{{ order.consumer.firstName }} {{ order.consumer.lastName }}</span>
                             </li>
                             <li class="list-group-item p-4 d-flex justify-content-between align-items-center">
-                                <span class="text-muted fw-bold">Date Ordered</span>
-                                <span class="text-end">{{ order.createdAt ? order.createdAt|date('F j, Y, g:i a') : '' }}</span>
+                                <span class="text-muted fw-bold">Business Fulfilling</span>
+                                <span class="badge bg-secondary rounded-pill">{{ order.package.business.name }}</span>
                             </li>
                         </ul>
                     </div>
+
+                    {# Action Buttons Section #}
                     <div class="p-4 bg-light d-flex justify-content-between flex-wrap gap-2">
-                        <a href="{{ path('app_order') }}" class="btn btn-outline-secondary rounded-pill fw-bold px-4">← Back</a>
+                        <a href="{{ path('app_order') }}" class="btn btn-outline-secondary rounded-pill fw-bold px-4">← Back to Orders</a>
+
                         <div class="d-flex gap-2">
-                            <a href="{{ path('app_order_edit', {id: order.id}) }}" class="btn btn-warning rounded-pill fw-bold px-4 shadow-sm">Edit</a>
-                            <a href="{{ path('app_order_del', {id: order.id}) }}" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm">Delete</a>
+                            {% if is_granted('ROLE_CONSUMER') %}
+                                <a href="{{ path('app_order_edit', {id: order.id}) }}" class="btn btn-sm btn-warning rounded-pill fw-bold px-3 shadow-sm">
+                                    Edit
+                                </a>
+                            {% endif %}
+
+                            {% if is_granted('ROLE_CONSUMER') or is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('app_order_del', {id: order.id}) }}" class="btn btn-sm btn-danger rounded-pill fw-bold px-3 shadow-sm">
+                                    Delete
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

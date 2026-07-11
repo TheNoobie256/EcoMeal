@@ -7,9 +7,44 @@
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="display-5 fw-bold text-dark mb-0">Packages</h1>
-            <a href="{{ path('app_package_new') }}" class="btn btn-dark btn-lg rounded-pill shadow-sm fw-bold">
-                + Create New Package
-            </a>
+
+            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_BUSINESS') %}
+                <a href="{{ path('app_package_new') }}" class="btn btn-dark btn-lg rounded-pill shadow-sm fw-bold">
+                    + Create New Package
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="bg-white p-4 rounded-4 shadow-sm mb-4 border">
+            {{ form_start(package_filter_form, {'attr': {'class': 'row g-3 align-items-end'}}) }}
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold text-secondary small mb-1">Search Name</label>
+                {{ form_widget(package_filter_form.name, {'attr': {'class': 'form-control bg-light border-0', 'placeholder': 'e.g. Lunch Box'}}) }}
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-bold text-secondary small mb-1">Min Price</label>
+                {{ form_widget(package_filter_form.minPrice, {'attr': {'class': 'form-control bg-light border-0', 'placeholder': '$0.00'}}) }}
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-bold text-secondary small mb-1">Max Price</label>
+                {{ form_widget(package_filter_form.maxPrice, {'attr': {'class': 'form-control bg-light border-0', 'placeholder': '$100.00'}}) }}
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold text-secondary small mb-1">Category</label>
+                {{ form_widget(package_filter_form.category, {'attr': {'class': 'form-select bg-light border-0'}}) }}
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark rounded-pill fw-bold w-100 shadow-sm" style="height: 38px;">
+                    Filter Results
+                </button>
+            </div>
+
+            {{ form_end(package_filter_form) }}
         </div>
 
         <div class="table-container overflow-hidden">
@@ -22,6 +57,7 @@
                         <th class="py-3">Name</th>
                         <th class="py-3">Price</th>
                         <th class="py-3">Business</th>
+                        <th class="py-3">Category</th>
                         <th class="text-end pe-4 py-3 rounded-end">Actions</th>
                     </tr>
                     </thead>
@@ -33,6 +69,7 @@
                             <td class="fw-bold">{{ package.name }}</td>
                             <td>${{ package.price }}</td>
                             <td><span class="badge bg-secondary rounded-pill">{{ package.business.name }}</span></td>
+                            <td class="fw-bold">{{ package.category.name }}</td>
                             <td class="text-end pe-4">
                                 <a href="{{ path('app_package_view', {id: package.id}) }}" class="btn btn-sm btn-outline-dark rounded-pill fw-bold px-3">
                                     View Details

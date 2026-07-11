@@ -1,41 +1,64 @@
 {% extends 'base.html.twig' %}
+
 {% block title %}Orders{% endblock %}
+
 {% block body %}
     <div class="container py-5">
+
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="display-5 fw-bold text-dark mb-0">Orders</h1>
-            <a href="{{ path('app_order_new') }}" class="btn btn-dark btn-lg rounded-pill shadow-sm fw-bold">
-                + Create New Order
-            </a>
+
+            {# Only consumers can create orders from this page #}
+            {% if is_granted('ROLE_CONSUMER') %}
+                <a href="{{ path('app_order_new') }}" class="btn btn-dark btn-lg rounded-pill shadow-sm fw-bold">
+                    + Create New Order
+                </a>
+            {% endif %}
         </div>
 
-        <div class="table-container p-4 overflow-hidden">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-lime text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;">
-                    <tr>
-                        <th class="ps-4 py-3 rounded-start">ID</th>
-                        <th class="py-3">Package</th>
-                        <th class="py-3">Consumer</th>
-                        <th class="py-3">Date Ordered</th>
-                        <th class="text-end pe-4 py-3 rounded-end">Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody class="border-top-0">
-                    {% for order in orders %}
-                        <tr>
-                            <td class="ps-4"><strong>{{ order.id }}</strong></td>
-                            <td class="fw-bold"><span class="badge bg-secondary rounded-pill">{{ order.package.name }}</span></td>
-                            <td>{{ order.consumer.firstName }} {{ order.consumer.lastName }}</td>
-                            <td>{{ order.createdAt ? order.createdAt|date('M d, Y h:i A') : '' }}</td>
-                            <td class="text-end pe-4">
-                                <a href="{{ path('app_order_view', {id: order.id}) }}" class="btn btn-sm btn-outline-dark rounded-pill fw-bold px-3">View Details</a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+        {% if orders is empty %}
+            <div class="alert alert-light border rounded-4 text-center py-5 shadow-sm">
+                <h4 class="fw-bold text-secondary mb-3">No orders found!</h4>
+                {% if is_granted('ROLE_CONSUMER') %}
+                    <p class="text-muted mb-4">You haven't placed any orders yet. Check out what our businesses have to offer.</p>
+                    <a href="{{ path('app_package') }}" class="btn btn-lime rounded-pill fw-bold px-4 text-dark" style="background-color: #a3e635;">Browse Packages</a>
+                {% else %}
+                    <p class="text-muted mb-0">There are currently no orders to display.</p>
+                {% endif %}
             </div>
-        </div>
+        {% else %}
+            <div class="table-container overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="bg-lime text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                        <tr>
+                            <th class="ps-4 py-3 rounded-start">Order ID</th>
+                            <th class="py-3">Package</th>
+                            <th class="py-3">Consumer</th>
+                            <th class="text-end pe-4 py-3 rounded-end">Actions</th>
+                        </tr>
+                        </thead>
+
+                        <tbody class="border-top-0">
+                        {% for order in orders %}
+                            <tr>
+                                <td class="ps-4"><strong>#{{ order.id }}</strong></td>
+                                <td class="fw-bold">{{ order.package.name }}</td>
+                                <td>{{ order.consumer.firstName }} {{ order.consumer.lastName }}</td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="{{ path('app_order_view', {id: order.id}) }}" class="btn btn-sm btn-outline-dark rounded-pill fw-bold px-3">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\DTO\PackageSearchFilter;
 use App\Entity\Package;
+use App\Form\PackageFiltersType;
 use App\Form\PackageFormType;
 use App\Repository\PackageRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,19 +17,22 @@ use Symfony\Component\Routing\Attribute\Route;
 final class PackageController extends AbstractController
 {
     #[Route('', name: 'app_package', methods: ['GET'])]
-    public function index(PackageRepository $packageRepository): Response
+    public function index(Request $request, PackageRepository $packageRepository): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $filter = new PackageSearchFilter();
+        $form = $this->createForm(PackageFiltersType::class, $filter/*, ['csrf_protection' => false]*/);
+        $form->handleRequest($request);
 
         return $this->render('package/index.html.twig', [
-            'packages' => $packageRepository->findAll(),
+            'packages' => $packageRepository->findByFilter($filter),
+            'package_filter_form' => $form->createView(),
         ]);
     }
 
     #[Route('/new', name: 'app_package_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        if (!$this->isGranted('ROLE_BUSINESS') && !$this->isGranted('ROLE_ADMIN')) {
+        if (!$this->isGranted('ROLE_BUSINESS')) {
             throw $this->createAccessDeniedException('Only businesses can create packages.');
         }
 
@@ -55,7 +60,6 @@ final class PackageController extends AbstractController
     #[Route('/{id}', name: 'app_package_view', methods: ['GET'])]
     public function view(Package $package): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         return $this->render('package/view.html.twig', [
             'package' => $package,
@@ -65,6 +69,10 @@ final class PackageController extends AbstractController
     #[Route('/{id}/edit', name: 'app_package_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Package $package, EntityManagerInterface $entityManager): Response
     {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('Admins cannot edit packages. Only the business owner can do this.');
+        }
+
         $this->checkPackageAccess($package);
 
         $form = $this->createForm(PackageFormType::class, $package);
@@ -89,6 +97,24 @@ final class PackageController extends AbstractController
         $entityManager->flush();
 
         return $this->redirectToRoute('app_package');
+    }
+    #[Route('/{id}/order-direct', name: 'app_package_order_direct', methods: ['POST'])]
+    public function orderDirect(Package $package, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_CONSUMER');
+
+        $order = new \App\Entity\Order();
+        $order->setPackage($package);
+        $order->setConsumer($this->getUser()->getConsumer());
+
+        $order->setCreatedAt(new \DateTimeImmutable());
+
+        $entityManager->persist($order);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Your order for ' . $package->getName() . ' has been placed successfully!');
+
+        return $this->redirectToRoute('app_order');
     }
 
     private function checkPackageAccess(Package $package): void

@@ -58,6 +58,10 @@ final class ConsumerController extends AbstractController
     #[Route('/{id}/edit', name: 'app_consumer_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Consumer $consumer, EntityManagerInterface $entityManager): Response
     {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('Admins cannot alter a consumer\'s personal data.');
+        }
+
         $this->checkConsumerAccess($consumer);
 
         $form = $this->createForm(ConsumerFormType::class, $consumer);
@@ -82,6 +86,11 @@ final class ConsumerController extends AbstractController
     public function remove(Consumer $consumer, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $user = $this->getUser();
+        if ($user && $user->getConsumer() && $user->getConsumer()->getId() === $consumer->getId()) {
+            throw $this->createAccessDeniedException('Self-preservation active: You cannot delete your own account!');
+        }
 
         $entityManager->remove($consumer);
         $entityManager->flush();

@@ -20,8 +20,18 @@
                     <div class="p-4 bg-light d-flex justify-content-between flex-wrap gap-2">
                         <a href="{{ path('app_consumer') }}" class="btn btn-outline-secondary rounded-pill fw-bold px-4">← Back</a>
                         <div class="d-flex gap-2">
-                            <a href="{{ path('app_consumer_edit', {id: consumer.id}) }}" class="btn btn-warning rounded-pill fw-bold px-4 shadow-sm">Edit</a>
-                            <a href="{{ path('app_consumer_del', {id: consumer.id}) }}" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm">Delete</a>
+                            {% if not is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('app_consumer_edit', {id: consumer.id}) }}" class="btn btn-warning rounded-pill fw-bold px-4 shadow-sm">
+                                    Edit
+                                </a>
+                            {% endif %}
+
+                            {# Keep the Delete button visible ONLY for Admins #}
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('app_consumer_del', {id: consumer.id}) }}" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm">
+                                    Delete User
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
