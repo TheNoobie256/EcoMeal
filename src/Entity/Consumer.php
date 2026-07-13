@@ -33,9 +33,23 @@ class Consumer
     #[ORM\OneToOne(mappedBy: 'consumer', cascade: ['persist', 'remove'])]
     private ?User $user = null;
 
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'consumers')]
+    private Collection $preffered_categories;
+
+    /**
+     * @var Collection<int, Business>
+     */
+    #[ORM\ManyToMany(targetEntity: Business::class, inversedBy: 'consumers')]
+    private Collection $favorite_businesses;
+
     public function __construct()
     {
         $this->orders = new ArrayCollection();
+        $this->preffered_categories = new ArrayCollection();
+        $this->favorite_businesses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -100,7 +114,6 @@ class Consumer
     public function removeOrder(Order $order): static
     {
         if ($this->orders->removeElement($order)) {
-            // set the owning side to null (unless already changed)
             if ($order->getConsumer() === $this) {
                 $order->setConsumer(null);
             }
@@ -116,17 +129,63 @@ class Consumer
 
     public function setUser(?User $user): static
     {
-        // unset the owning side of the relation if necessary
         if ($user === null && $this->user !== null) {
             $this->user->setConsumer(null);
         }
 
-        // set the owning side of the relation if necessary
         if ($user !== null && $user->getConsumer() !== $this) {
             $user->setConsumer($this);
         }
 
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getPreferredCategories(): Collection
+    {
+        return $this->preffered_categories;
+    }
+
+    public function addPreferredCategory(Category $prefferedCategory): static
+    {
+        if (!$this->preffered_categories->contains($prefferedCategory)) {
+            $this->preffered_categories->add($prefferedCategory);
+        }
+
+        return $this;
+    }
+
+    public function removePrefferedCategory(Category $prefferedCategory): static
+    {
+        $this->preffered_categories->removeElement($prefferedCategory);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Business>
+     */
+    public function getFavoriteBusinesses(): Collection
+    {
+        return $this->favorite_businesses;
+    }
+
+    public function addFavoriteBusiness(Business $favoriteBusiness): static
+    {
+        if (!$this->favorite_businesses->contains($favoriteBusiness)) {
+            $this->favorite_businesses->add($favoriteBusiness);
+        }
+
+        return $this;
+    }
+
+    public function removeFavoriteBusiness(Business $favoriteBusiness): static
+    {
+        $this->favorite_businesses->removeElement($favoriteBusiness);
 
         return $this;
     }

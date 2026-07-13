@@ -24,9 +24,16 @@ class Category
     #[ORM\OneToMany(targetEntity: Package::class, mappedBy: 'category')]
     private Collection $packages;
 
+    /**
+     * @var Collection<int, Consumer>
+     */
+    #[ORM\ManyToMany(targetEntity: Consumer::class, mappedBy: 'preffered_categories')]
+    private Collection $consumers;
+
     public function __construct()
     {
         $this->packages = new ArrayCollection();
+        $this->consumers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -71,6 +78,33 @@ class Category
             if ($package->getCategory() === $this) {
                 $package->setCategory(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Consumer>
+     */
+    public function getConsumers(): Collection
+    {
+        return $this->consumers;
+    }
+
+    public function addConsumer(Consumer $consumer): static
+    {
+        if (!$this->consumers->contains($consumer)) {
+            $this->consumers->add($consumer);
+            $consumer->addPrefferedCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeConsumer(Consumer $consumer): static
+    {
+        if ($this->consumers->removeElement($consumer)) {
+            $consumer->removePrefferedCategory($this);
         }
 
         return $this;

@@ -64,6 +64,12 @@
                     </li>
                 {% endif %}
 
+                {% if is_granted('ROLE_CONSUMER') %}
+                    <li class="nav-item ms-2">
+                        <a class="nav-link text-danger fw-bold" href="{{ path('app_package_favorites') }}">❤️ Favorites</a>
+                    </li>
+                {% endif %}
+
                 {% if is_granted('ROLE_ADMIN') %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_business') }}">Businesses</a>

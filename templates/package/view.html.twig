@@ -24,9 +24,21 @@
                                 <span class="text-muted fw-bold d-block mb-1">Description</span>
                                 <span>{{ package.description }}</span>
                             </li>
-                            <li class="list-group-item p-4 d-flex justify-content-between align-items-center">
+                            <li class="list-group-item p-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
                                 <span class="text-muted fw-bold">Business</span>
-                                <span class="text-end fw-bold">{{ package.business.name }}</span>
+
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="text-end fw-bold">{{ package.business.name }}</span>
+
+                                    {% if is_granted('ROLE_CONSUMER') %}
+                                        {% set isFavorite = app.user.consumer.favoriteBusinesses.contains(package.business) %}
+                                        <form action="{{ path('app_consumer_favorite_business', {id: package.business.id}) }}" method="POST" class="m-0">
+                                            <button type="submit" class="btn btn-sm {{ isFavorite ? 'btn-danger' : 'btn-outline-danger' }} rounded-pill fw-bold shadow-sm" style="padding: 4px 14px; font-size: 0.85rem;">
+                                                {{ isFavorite ? '❤️ Favorited' : '🤍 Favorite' }}
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
                             </li>
                             <li class="list-group-item p-4 d-flex justify-content-between align-items-center">
                                 <span class="text-muted fw-bold">Category</span>

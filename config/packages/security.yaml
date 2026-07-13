@@ -33,6 +33,7 @@ security:
 
     # Note: Only the *first* matching rule is applied
     access_control:
+        - { path: ^/consumer/favorite/business/\d+$, roles: [ROLE_CONSUMER, ROLE_ADMIN]}
         - { path: ^/consumer/\d+$, roles: [ROLE_CONSUMER, ROLE_ADMIN] }
         - { path: ^/consumer, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }

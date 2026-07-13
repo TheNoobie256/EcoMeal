@@ -43,9 +43,16 @@ class Business
     #[ORM\OneToOne(mappedBy: 'business', cascade: ['persist', 'remove'])]
     private ?User $user = null;
 
+    /**
+     * @var Collection<int, Consumer>
+     */
+    #[ORM\ManyToMany(targetEntity: Consumer::class, mappedBy: 'favorite_businesses')]
+    private Collection $consumers;
+
     public function __construct()
     {
         $this->packages = new ArrayCollection();
+        $this->consumers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -173,6 +180,33 @@ class Business
         }
 
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Consumer>
+     */
+    public function getConsumers(): Collection
+    {
+        return $this->consumers;
+    }
+
+    public function addConsumer(Consumer $consumer): static
+    {
+        if (!$this->consumers->contains($consumer)) {
+            $this->consumers->add($consumer);
+            $consumer->addFavoriteBusiness($this);
+        }
+
+        return $this;
+    }
+
+    public function removeConsumer(Consumer $consumer): static
+    {
+        if ($this->consumers->removeElement($consumer)) {
+            $consumer->removeFavoriteBusiness($this);
+        }
 
         return $this;
     }
