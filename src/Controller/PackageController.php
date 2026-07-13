@@ -16,15 +16,20 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/package')]
 final class PackageController extends AbstractController
 {
-    #[Route('', name: 'app_package', methods: ['GET'])]
+    #[Route('/', name: 'app_package', methods: ['GET'])]
     public function index(Request $request, PackageRepository $packageRepository): Response
     {
         $filter = new PackageSearchFilter();
         $form = $this->createForm(PackageFiltersType::class, $filter);
         $form->handleRequest($request);
 
+        $preferredCategories = null;
+        if ($this->isGranted('ROLE_CONSUMER')) {
+            $preferredCategories = $this->getUser()->getConsumer()->getPreferredCategories();
+        }
+
         return $this->render('package/index.html.twig', [
-            'packages' => $packageRepository->findByFilter($filter),
+            'packages' => $packageRepository->findByFilter($filter, $preferredCategories),
             'package_filter_form' => $form->createView(),
         ]);
     }
@@ -71,6 +76,30 @@ final class PackageController extends AbstractController
         $this->addFlash('success', 'Your order for ' . $package->getName() . ' has been placed successfully!');
 
         return $this->redirectToRoute('app_order');
+    }
+
+    #[Route('/favorites', name: 'app_package_favorites', methods: ['GET'])]
+    public function favorites(PackageRepository $packageRepository): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_CONSUMER');
+
+        $consumer = $this->getUser()->getConsumer();
+        $favoriteBusinesses = $consumer->getFavoriteBusinesses();
+
+        $packages = [];
+
+        if (!$favoriteBusinesses->isEmpty()) {
+            $packages = $packageRepository->createQueryBuilder('p')
+                ->where('p.business IN (:businesses)')
+                ->setParameter('businesses', $favoriteBusinesses)
+                ->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Order o WHERE o.package = p)') // Available only
+                ->getQuery()
+                ->getResult();
+        }
+
+        return $this->render('package/favorites.html.twig', [
+            'packages' => $packages,
+        ]);
     }
 
     #[Route('/{id}', name: 'app_package_view', methods: ['GET'])]

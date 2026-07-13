@@ -72,7 +72,15 @@
                         <tr>
                             <td class="ps-4"><strong>{{ package.id }}</strong></td>
                             <td class="fw-bold">{{ package.name }}</td>
-                            <td>${{ package.price }}</td>
+                            <td>
+                                {% set current_hour = "now"|date("H") + 12 %}
+                                {% if current_hour >= 20 %}
+                                    <span class="text-muted text-decoration-line-through small">${{ package.price }}</span><br>
+                                    <span class="text-danger fw-bold">${{ (package.price * 0.70)|number_format(2) }}</span>
+                                {% else %}
+                                    ${{ package.price }}
+                                {% endif %}
+                            </td>
                             <td><span class="badge bg-secondary rounded-pill">{{ package.business.name }}</span></td>
                             <td class="fw-bold">{{ package.category.name }}</td>
                             <td class="text-end pe-4">

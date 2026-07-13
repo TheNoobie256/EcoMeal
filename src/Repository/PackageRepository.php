@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\DTO\PackageSearchFilter;
 use App\Entity\Package;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,7 +18,7 @@ class PackageRepository extends ServiceEntityRepository
         parent::__construct($registry, Package::class);
     }
 
-    public function findByFilter(PackageSearchFilter $filter): array
+    public function findByFilter(PackageSearchFilter $filter, ?Collection $preferredCategories): array
     {
         $qb = $this->createQueryBuilder('p')
             ->leftJoin('p.category', 'c')
@@ -49,6 +50,11 @@ class PackageRepository extends ServiceEntityRepository
             } else {
                 $qb->andWhere('EXISTS (SELECT 1 FROM App\Entity\Order o2 WHERE o2.package = p)');
             }
+        }
+
+        if ($preferredCategories && !$preferredCategories->isEmpty() && !$filter->category) {
+            $qb->andWhere('p.category IN (:preferredCategories)')
+                ->setParameter('preferredCategories', $preferredCategories);
         }
 
         return $qb->getQuery()->getResult();

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Business;
 use App\Entity\Consumer;
 use App\Form\ConsumerFormType;
 use App\Repository\ConsumerRepository;
@@ -43,6 +44,24 @@ final class ConsumerController extends AbstractController
         return $this->render('consumer/new.html.twig', [
             'form' => $form,
         ]);
+    }
+
+    #[Route('/favorite/business/{id}', name: 'app_consumer_favorite_business', methods: ['POST'])]
+    public function toggleFavoriteBusiness(Request $request, Business $business, EntityManagerInterface $entityManager):Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_CONSUMER');
+
+        $consumer = $this->getUser()->getConsumer();
+
+        if ($consumer->getFavoriteBusinesses()->contains($business)) {
+            $consumer->removeFavoriteBusiness($business);
+        } else {
+            $consumer->addFavoriteBusiness($business);
+        }
+
+        $entityManager->flush();
+
+        return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_package'));
     }
 
     #[Route('/{id}', name: 'app_consumer_view', methods: ['GET'])]

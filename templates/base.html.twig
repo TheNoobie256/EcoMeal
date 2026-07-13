@@ -64,6 +64,12 @@
                     </li>
                 {% endif %}
 
+                {% if is_granted('ROLE_CONSUMER') %}
+                    <li class="nav-item ms-2">
+                        <a class="nav-link text-danger fw-bold" href="{{ path('app_package_favorites') }}">❤️ Favorites</a>
+                    </li>
+                {% endif %}
+
                 {% if is_granted('ROLE_ADMIN') %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_business') }}">Businesses</a>
@@ -89,8 +95,7 @@
                             {% endif %}
                             {% if is_granted('ROLE_BUSINESS') and app.user.business %}
                                 <li><a class="dropdown-item fw-bold text-dark py-2" href="{{ path('app_business_view', {id: app.user.business.id}) }}">My Business</a></li>
-                            {% endif %}.git branch
-
+                            {% endif %}
 
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item fw-bold text-danger py-2" href="{{ path('app_logout') }}">Logout</a></li>
