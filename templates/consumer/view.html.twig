@@ -18,7 +18,11 @@
                         </ul>
                     </div>
                     <div class="p-4 bg-light d-flex justify-content-between flex-wrap gap-2">
-                        <a href="{{ path('app_consumer') }}" class="btn btn-outline-secondary rounded-pill fw-bold px-4">← Back</a>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('app_consumer') }}" class="btn btn-outline-secondary rounded-pill fw-bold px-4">← Back to Users List</a>
+                        {% else %}
+                            <a href="{{ path('app_package') }}" class="btn btn-outline-secondary rounded-pill fw-bold px-4">← Back to Packages</a>
+                        {% endif %}
                         <div class="d-flex gap-2">
                             {% if not is_granted('ROLE_ADMIN') %}
                                 <a href="{{ path('app_consumer_edit', {id: consumer.id}) }}" class="btn btn-warning rounded-pill fw-bold px-4 shadow-sm">
@@ -26,7 +30,6 @@
                                 </a>
                             {% endif %}
 
-                            {# Keep the Delete button visible ONLY for Admins #}
                             {% if is_granted('ROLE_ADMIN') %}
                                 <a href="{{ path('app_consumer_del', {id: consumer.id}) }}" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm">
                                     Delete User

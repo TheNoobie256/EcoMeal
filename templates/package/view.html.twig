@@ -24,21 +24,9 @@
                                 <span class="text-muted fw-bold d-block mb-1">Description</span>
                                 <span>{{ package.description }}</span>
                             </li>
-                            <li class="list-group-item p-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <li class="list-group-item p-4 d-flex justify-content-between align-items-center">
                                 <span class="text-muted fw-bold">Business</span>
-
-                                <div class="d-flex align-items-center gap-3">
-                                    <span class="text-end fw-bold">{{ package.business.name }}</span>
-
-                                    {% if is_granted('ROLE_CONSUMER') %}
-                                        {% set isFavorite = app.user.consumer.favoriteBusinesses.contains(package.business) %}
-                                        <form action="{{ path('app_consumer_favorite_business', {id: package.business.id}) }}" method="POST" class="m-0">
-                                            <button type="submit" class="btn btn-sm {{ isFavorite ? 'btn-danger' : 'btn-outline-danger' }} rounded-pill fw-bold shadow-sm" style="padding: 4px 14px; font-size: 0.85rem;">
-                                                {{ isFavorite ? '❤️ Favorited' : '🤍 Favorite' }}
-                                            </button>
-                                        </form>
-                                    {% endif %}
-                                </div>
+                                <span class="text-end fw-bold">{{ package.business.name }}</span>
                             </li>
                             <li class="list-group-item p-4 d-flex justify-content-between align-items-center">
                                 <span class="text-muted fw-bold">Category</span>
@@ -49,6 +37,7 @@
 
                     <div class="p-4 bg-light d-flex justify-content-between flex-wrap gap-2">
 
+                        {# LEFT SIDE: Back and Order Buttons #}
                         <div class="d-flex gap-2">
                             <a href="{{ path('app_package') }}" class="btn btn-outline-secondary rounded-pill fw-bold px-4">← Back</a>
 
@@ -67,14 +56,17 @@
                             {% endif %}
                         </div>
 
+                        {# RIGHT SIDE: Admin/Business Actions #}
                         <div class="d-flex gap-2">
                             {% if app.user and app.user.business and app.user.business.id == package.business.id %}
                                 <a href="{{ path('app_package_edit', {id: package.id}) }}" class="btn btn-warning rounded-pill fw-bold px-4 shadow-sm">Edit</a>
                             {% endif %}
+
                             {% if is_granted('ROLE_ADMIN') or (app.user and app.user.business and app.user.business.id == package.business.id) %}
                                 <a href="{{ path('app_package_del', {id: package.id}) }}" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm">Delete</a>
                             {% endif %}
                         </div>
+
                     </div>
                 </div>
             </div>

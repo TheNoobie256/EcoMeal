@@ -3,11 +3,9 @@
 namespace App\Controller;
 
 use App\DTO\PackageSearchFilter;
-use App\Entity\Order;
 use App\Entity\Package;
 use App\Form\PackageFiltersType;
 use App\Form\PackageFormType;
-use App\Repository\OrderRepository;
 use App\Repository\PackageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,27 +20,22 @@ final class PackageController extends AbstractController
     public function index(Request $request, PackageRepository $packageRepository): Response
     {
         $filter = new PackageSearchFilter();
-        $form = $this->createForm(PackageFiltersType::class, $filter/*, ['csrf_protection' => false]*/);
+        $form = $this->createForm(PackageFiltersType::class, $filter);
         $form->handleRequest($request);
 
         return $this->render('package/index.html.twig', [
             'packages' => $packageRepository->findByFilter($filter),
-            'package_filter_form' => $form,
+            'package_filter_form' => $form->createView(),
         ]);
     }
 
     #[Route('/new', name: 'app_package_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        if (!$this->isGranted('ROLE_BUSINESS')) {
-            throw $this->createAccessDeniedException('Only businesses can create packages.');
-        }
+        $this->denyAccessUnlessGranted('ROLE_BUSINESS');
 
         $package = new Package();
-
-        if ($this->isGranted('ROLE_BUSINESS')) {
-            $package->setBusiness($this->getUser()->getBusiness());
-        }
+        $package->setBusiness($this->getUser()->getBusiness());
 
         $form = $this->createForm(PackageFormType::class, $package);
         $form->handleRequest($request);
@@ -59,11 +52,32 @@ final class PackageController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/order-direct', name: 'app_package_order_direct', methods: ['POST'])]
+    public function orderDirect(Package $package, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_BUSINESS')) {
+            throw $this->createAccessDeniedException('Only registered consumers can place orders.');
+        }
+
+        $this->denyAccessUnlessGranted('ROLE_CONSUMER');
+
+        $order = new \App\Entity\Order();
+        $order->setPackage($package);
+        $order->setConsumer($this->getUser()->getConsumer());
+
+        $entityManager->persist($order);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Your order for ' . $package->getName() . ' has been placed successfully!');
+
+        return $this->redirectToRoute('app_order');
+    }
+
     #[Route('/{id}', name: 'app_package_view', methods: ['GET'])]
-    public function view(Package $package, OrderRepository $orderRepository): Response
+    public function view(Package $package, \App\Repository\OrderRepository $orderRepository): Response
     {
         $orderExists = $orderRepository->findOneBy(['package' => $package]);
-        $isAvailable = !$orderExists; // If no order exists, it IS available
+        $isAvailable = !$orderExists;
 
         return $this->render('package/view.html.twig', [
             'package' => $package,
@@ -102,24 +116,6 @@ final class PackageController extends AbstractController
         $entityManager->flush();
 
         return $this->redirectToRoute('app_package');
-    }
-    #[Route('/{id}/order-direct', name: 'app_package_order_direct', methods: ['POST'])]
-    public function orderDirect(Package $package, EntityManagerInterface $entityManager): Response
-    {
-        $this->denyAccessUnlessGranted('ROLE_CONSUMER');
-
-        $order = new Order();
-        $order->setPackage($package);
-        $order->setConsumer($this->getUser()->getConsumer());
-
-        $order->setCreatedAt(new \DateTimeImmutable());
-
-        $entityManager->persist($order);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Your order for ' . $package->getName() . ' has been placed successfully!');
-
-        return $this->redirectToRoute('app_order');
     }
 
     private function checkPackageAccess(Package $package): void

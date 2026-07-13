@@ -19,6 +19,7 @@ final class BusinessController extends AbstractController
     #[Route('', name: 'app_business', methods: ['GET'])]
     public function index(BusinessRepository $businessRepository): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         return $this->render('business/index.html.twig', [
             'businesses' => $businessRepository->findAll(),
         ]);

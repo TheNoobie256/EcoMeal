@@ -2,7 +2,6 @@
 
 namespace App\Repository;
 
-use App\Entity\Order;
 use App\DTO\PackageSearchFilter;
 use App\Entity\Package;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -24,26 +23,22 @@ class PackageRepository extends ServiceEntityRepository
             ->leftJoin('p.category', 'c')
             ->addSelect('c');
 
-        if($filter->name)
-        {
+        if($filter->name) {
             $qb->andWhere('p.name LIKE :name')
-            ->setParameter('name', '%'.$filter->name.'%');
+                ->setParameter('name', '%'.$filter->name.'%');
         }
 
-        if($filter->minPrice)
-        {
+        if($filter->minPrice) {
             $qb->andWhere('p.price >= :minPrice')
                 ->setParameter('minPrice', $filter->minPrice);
         }
 
-        if($filter->maxPrice)
-        {
+        if($filter->maxPrice) {
             $qb->andWhere('p.price <= :maxPrice')
                 ->setParameter('maxPrice', $filter->maxPrice);
         }
 
-        if($filter->category)
-        {
+        if($filter->category) {
             $qb->andWhere('p.category = :category')
                 ->setParameter('category', $filter->category);
         }
@@ -58,29 +53,4 @@ class PackageRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
-
-//    /**
-//     * @return Package[] Returns an array of Package objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('p.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Package
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }
