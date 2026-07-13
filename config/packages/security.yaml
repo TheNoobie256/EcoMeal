@@ -37,6 +37,7 @@ security:
         - { path: ^/consumer/\d+/edit$, roles: [ ROLE_CONSUMER, ROLE_ADMIN ] }
         - { path: ^/consumer/\d+$, roles: [ ROLE_CONSUMER, ROLE_ADMIN ] }
         - { path: ^/consumer, roles: ROLE_ADMIN }
+        - { path: ^/business, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 
 when@test:

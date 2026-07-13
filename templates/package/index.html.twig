@@ -8,9 +8,9 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="display-5 fw-bold text-dark mb-0">Packages</h1>
 
-            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_BUSINESS') %}
-                <a href="{{ path('app_package_new') }}" class="btn btn-dark btn-lg rounded-pill shadow-sm fw-bold">
-                    + Create New Package
+            {% if is_granted('ROLE_BUSINESS') and app.user.business is not null and app.user.business.id == business.id %}
+                <a href="{{ path('app_business_add_package', {id: business.id}) }}" class="btn btn-success">
+                    + Add Package
                 </a>
             {% endif %}
         </div>

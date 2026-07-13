@@ -81,6 +81,12 @@ final class BusinessController extends AbstractController
     #[Route('/{id}/add_package', name: 'app_business_add_package', methods: ['GET', 'POST'])]
     public function addPackage(Request $request, Business $business, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_BUSINESS');
+
+        if ($this->getUser()->getBusiness() !== $business) {
+            throw $this->createAccessDeniedException('Nice try! You can only add packages to your own business.');
+        }
+
         $package = new Package();
 
         $package->setBusiness($business);

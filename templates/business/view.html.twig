@@ -32,7 +32,11 @@
                             <a href="{{ path('app_package') }}" class="btn btn-outline-secondary rounded-pill fw-bold px-4">← Back to Packages</a>
                         {% endif %}
                         <div class="d-flex gap-2">
-                            <a href="{{ path('app_business_add_package', {id: business.id}) }}" class="btn btn-info rounded-pill fw-bold px-4 shadow-sm">Add Package</a>
+                            {% if is_granted('ROLE_BUSINESS') and app.user.business is not null and app.user.business.id == business.id %}
+                                <a href="{{ path('app_business_add_package', {id: business.id}) }}" class="btn btn-info rounded-pill fw-bold px-4 shadow-sm">
+                                    + Add Package
+                                </a>
+                            {% endif %}
                             <a href="{{ path('app_business_edit', {id: business.id}) }}" class="btn btn-warning rounded-pill fw-bold px-4 shadow-sm">Edit</a>
                             <a href="{{ path('app_business_del', {id: business.id}) }}" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm">Delete</a>
                         </div>
