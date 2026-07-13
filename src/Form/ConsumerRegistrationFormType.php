@@ -37,7 +37,7 @@ class ConsumerRegistrationFormType extends AbstractType
 
                     new NotCompromisedPassword(message: 'This password was found in a common list or data breach. Please choose another.'),
 
-                    new PasswordStrength(minScore: PasswordStrength::STRENGTH_STRONG, message: 'Your password is too weak. Please add numbers, uppercase letters, or special characters.'),
+                    new PasswordStrength(minScore: PasswordStrength::STRENGTH_MEDIUM, message: 'Your password is too weak. Please add numbers, uppercase letters, or special characters.'),
                 ],
             ])
             ->add('consumer', ConsumerFormType::class, [

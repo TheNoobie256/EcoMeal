@@ -7,18 +7,22 @@ use App\Entity\Consumer;
 use App\Entity\User;
 use App\Form\BusinessRegistrationFormType;
 use App\Form\ConsumerRegistrationFormType;
+use App\Security\LoginFormAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager): Response
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager, MailerInterface $mailer, UrlGeneratorInterface $urlGenerator): Response
     {
         $user = new User();
         $consumer = new Consumer();
@@ -32,16 +36,22 @@ class RegistrationController extends AbstractController
             $plainPassword = $form->get('plainPassword')->getData();
 
             $user->setRoles(['ROLE_CONSUMER']);
-
-            // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // do anything else you need here, like send an email
+            $packageUrl = $urlGenerator->generate('app_package', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
-            return $security->login($user, \App\Security\LoginFormAuthenticator::class, 'main');
+            $email = (new Email())
+                ->from('welcome@foodrescue.com')
+                ->to($user->getEmail())
+                ->subject('Successful Registration')
+                ->html(sprintf('<p>Welcome to our application! Link to <a href="%s">packages</a></p>', $packageUrl));
+
+            $mailer->send($email);
+
+            return $security->login($user, LoginFormAuthenticator::class, 'main');
         }
 
         return $this->render('registration/consumer_register.html.twig', [

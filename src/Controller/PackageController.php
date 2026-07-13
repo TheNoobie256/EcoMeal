@@ -7,11 +7,15 @@ use App\Entity\Package;
 use App\Form\PackageFiltersType;
 use App\Form\PackageFormType;
 use App\Repository\PackageRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[Route('/package')]
 final class PackageController extends AbstractController
@@ -28,19 +32,26 @@ final class PackageController extends AbstractController
             $preferredCategories = $this->getUser()->getConsumer()->getPreferredCategories();
         }
 
+        $myBusiness = null;
+        if ($this->isGranted('ROLE_BUSINESS')) {
+            $myBusiness = $this->getUser()->getBusiness();
+        }
+
         return $this->render('package/index.html.twig', [
-            'packages' => $packageRepository->findByFilter($filter, $preferredCategories),
+            'packages' => $packageRepository->findByFilter($filter, $preferredCategories, $myBusiness),
             'package_filter_form' => $form->createView(),
         ]);
     }
 
     #[Route('/new', name: 'app_package_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, UserRepository $userRepository, MailerInterface $mailer, UrlGeneratorInterface $urlGenerator): Response
     {
         $this->denyAccessUnlessGranted('ROLE_BUSINESS');
 
         $package = new Package();
-        $package->setBusiness($this->getUser()->getBusiness());
+
+        $business = $this->getUser()->getBusiness();
+        $package->setBusiness($business);
 
         $form = $this->createForm(PackageFormType::class, $package);
         $form->handleRequest($request);
@@ -49,6 +60,32 @@ final class PackageController extends AbstractController
             $entityManager->persist($package);
             $entityManager->flush();
 
+            $fans = $userRepository->createQueryBuilder('u')
+                ->join('u.consumer', 'c')
+                ->join('c.favorite_businesses', 'b')
+                ->where('b = :business')
+                ->setParameter('business', $business)
+                ->getQuery()
+                ->getResult();
+
+            $packageUrl = $urlGenerator->generate('app_package_view', ['id' => $package->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+            foreach ($fans as $fan) {
+                $email = (new Email())
+                    ->from('alerts@foodrescue.com')
+                    ->to($fan->getEmail())
+                    ->subject('🚨 New Surprise Bag from ' . $business->getName() . '!')
+                    ->html(sprintf(
+                        '<p>Great news! Your favorite store just posted a new package: <strong>%s</strong>.</p>
+                         <p><a href="%s">Order it now before it sells out!</a></p>',
+                        $package->getName(),
+                        $packageUrl
+                    ));
+
+                $mailer->send($email);
+            }
+
+            $this->addFlash('success', 'Package created and fans notified!');
             return $this->redirectToRoute('app_package');
         }
 

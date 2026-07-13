@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\DTO\PackageSearchFilter;
+use App\Entity\Business;
 use App\Entity\Package;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Collection;
@@ -18,7 +19,7 @@ class PackageRepository extends ServiceEntityRepository
         parent::__construct($registry, Package::class);
     }
 
-    public function findByFilter(PackageSearchFilter $filter, ?Collection $preferredCategories): array
+    public function findByFilter(PackageSearchFilter $filter, ?Collection $preferredCategories, ?Business $business): array
     {
         $qb = $this->createQueryBuilder('p')
             ->leftJoin('p.category', 'c')
@@ -55,6 +56,11 @@ class PackageRepository extends ServiceEntityRepository
         if ($preferredCategories && !$preferredCategories->isEmpty() && !$filter->category) {
             $qb->andWhere('p.category IN (:preferredCategories)')
                 ->setParameter('preferredCategories', $preferredCategories);
+        }
+
+        if ($business) {
+            $qb->andWhere('p.business = :business')
+                ->setParameter('business', $business);
         }
 
         return $qb->getQuery()->getResult();
