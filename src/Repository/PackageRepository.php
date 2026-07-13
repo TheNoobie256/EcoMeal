@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Order;
 use App\DTO\PackageSearchFilter;
 use App\Entity\Package;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -45,6 +46,14 @@ class PackageRepository extends ServiceEntityRepository
         {
             $qb->andWhere('p.category = :category')
                 ->setParameter('category', $filter->category);
+        }
+
+        if ($filter->isAvailable !== null) {
+            if ($filter->isAvailable) {
+                $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Order o WHERE o.package = p)');
+            } else {
+                $qb->andWhere('EXISTS (SELECT 1 FROM App\Entity\Order o2 WHERE o2.package = p)');
+            }
         }
 
         return $qb->getQuery()->getResult();

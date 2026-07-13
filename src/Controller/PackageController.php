@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\DTO\PackageSearchFilter;
+use App\Entity\Order;
 use App\Entity\Package;
 use App\Form\PackageFiltersType;
 use App\Form\PackageFormType;
+use App\Repository\OrderRepository;
 use App\Repository\PackageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,7 +27,7 @@ final class PackageController extends AbstractController
 
         return $this->render('package/index.html.twig', [
             'packages' => $packageRepository->findByFilter($filter),
-            'package_filter_form' => $form->createView(),
+            'package_filter_form' => $form,
         ]);
     }
 
@@ -58,11 +60,14 @@ final class PackageController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_package_view', methods: ['GET'])]
-    public function view(Package $package): Response
+    public function view(Package $package, OrderRepository $orderRepository): Response
     {
+        $orderExists = $orderRepository->findOneBy(['package' => $package]);
+        $isAvailable = !$orderExists; // If no order exists, it IS available
 
         return $this->render('package/view.html.twig', [
             'package' => $package,
+            'isAvailable' => $isAvailable,
         ]);
     }
 
@@ -103,7 +108,7 @@ final class PackageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_CONSUMER');
 
-        $order = new \App\Entity\Order();
+        $order = new Order();
         $order->setPackage($package);
         $order->setConsumer($this->getUser()->getConsumer());
 
@@ -128,7 +133,6 @@ final class PackageController extends AbstractController
                 throw $this->createAccessDeniedException('You can only modify your own packages.');
             }
         } else {
-            // Consumers hit this block
             throw $this->createAccessDeniedException('You do not have permission to modify packages.');
         }
     }

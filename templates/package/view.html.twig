@@ -6,13 +6,11 @@
             <div class="col-lg-8">
                 <div class="detail-container overflow-hidden">
 
-                    {# Header Section #}
                     <div class="bg-lime p-4 d-flex justify-content-between align-items-center">
                         <h2 class="mb-0 fw-bold text-dark">{{ package.name }}</h2>
                         <span class="badge bg-dark rounded-pill fs-5">${{ package.price }}</span>
                     </div>
 
-                    {# Image Section #}
                     <div class="bg-light text-center border-bottom overflow-hidden" style="height: 300px;">
                         <img src="{{ asset('images/' ~ package.category.id ~ '.jpg') }}"
                              alt="{{ package.category.name }}"
@@ -20,7 +18,6 @@
                              style="object-fit: contain; background-color: #f4fcf4;">
                     </div>
 
-                    {# Data List Section #}
                     <div class="p-0">
                         <ul class="list-group list-group-flush fs-5">
                             <li class="list-group-item p-4">
@@ -38,19 +35,23 @@
                         </ul>
                     </div>
 
-                    {# Action Buttons Section #}
                     <div class="p-4 bg-light d-flex justify-content-between flex-wrap gap-2">
 
-                        {# LEFT SIDE: Back and Order Buttons #}
                         <div class="d-flex gap-2">
                             <a href="{{ path('app_package') }}" class="btn btn-outline-secondary rounded-pill fw-bold px-4">← Back</a>
 
                             {% if is_granted('ROLE_CONSUMER') %}
-                                <form action="{{ path('app_package_order_direct', {id: package.id}) }}" method="POST" onsubmit="return confirm('Are you sure you want to order this package?');">
-                                    <button type="submit" class="btn btn-dark rounded-pill fw-bold px-4 shadow-sm">
-                                        🛒 Order Now
+                                {% if isAvailable %}
+                                    <form action="{{ path('app_package_order_direct', {id: package.id}) }}" method="POST" onsubmit="return confirm('Are you sure you want to order this package?');">
+                                        <button type="submit" class="btn btn-dark rounded-pill fw-bold px-4 shadow-sm">
+                                            🛒 Order Now
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <button class="btn btn-secondary rounded-pill fw-bold px-4 shadow-sm" disabled>
+                                        🚫 Sold Out
                                     </button>
-                                </form>
+                                {% endif %}
                             {% endif %}
                         </div>
 

@@ -12,5 +12,7 @@ class PackageSearchFilter
 
     public ?Category $category = null;
 
+    public ?bool $isAvailable = true;
+
     //TODO: more filters: city, business, etc.
     }

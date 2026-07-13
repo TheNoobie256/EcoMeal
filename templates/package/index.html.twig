@@ -33,14 +33,19 @@
                 {{ form_widget(package_filter_form.maxPrice, {'attr': {'class': 'form-control bg-light border-0', 'placeholder': '$100.00'}}) }}
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label fw-bold text-secondary small mb-1">Category</label>
                 {{ form_widget(package_filter_form.category, {'attr': {'class': 'form-select bg-light border-0'}}) }}
             </div>
 
             <div class="col-md-2">
+                <label class="form-label fw-bold text-secondary small mb-1">Status</label>
+                {{ form_widget(package_filter_form.isAvailable, {'attr': {'class': 'form-select bg-light border-0'}}) }}
+            </div>
+
+            <div class="col-md-1">
                 <button type="submit" class="btn btn-dark rounded-pill fw-bold w-100 shadow-sm" style="height: 38px;">
-                    Filter Results
+                    Filter
                 </button>
             </div>
 
