@@ -89,7 +89,8 @@
                             {% endif %}
                             {% if is_granted('ROLE_BUSINESS') and app.user.business %}
                                 <li><a class="dropdown-item fw-bold text-dark py-2" href="{{ path('app_business_view', {id: app.user.business.id}) }}">My Business</a></li>
-                            {% endif %}
+                            {% endif %}.git branch
+
 
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item fw-bold text-danger py-2" href="{{ path('app_logout') }}">Logout</a></li>
