@@ -11,6 +11,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
+use Symfony\Component\Validator\Constraints\PasswordStrength;
 
 class ConsumerRegistrationFormType extends AbstractType
 {
@@ -27,20 +29,15 @@ class ConsumerRegistrationFormType extends AbstractType
                 ],
             ])
             ->add('plainPassword', PasswordType::class, [
-                // instead of being set onto the object directly,
-                // this is read and encoded in the controller
-                'mapped' => false,
+                                'mapped' => false,
                 'attr' => ['autocomplete' => 'new-password'],
                 'constraints' => [
-                    new NotBlank(
-                        message: 'Please enter a password',
-                    ),
-                    new Length(
-                        min: 6,
-                        minMessage: 'Your password should be at least {{ limit }} characters',
-                        // max length allowed by Symfony for security reasons
-                        max: 4096,
-                    ),
+
+                    new Length(min: 8, max: 4096, minMessage: 'Your password should be at least {{ limit }} characters.'),
+
+                    new NotCompromisedPassword(message: 'This password was found in a common list or data breach. Please choose another.'),
+
+                    new PasswordStrength(minScore: PasswordStrength::STRENGTH_STRONG, message: 'Your password is too weak. Please add numbers, uppercase letters, or special characters.'),
                 ],
             ])
             ->add('consumer', ConsumerFormType::class, [
