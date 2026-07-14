@@ -139,6 +139,52 @@ final class PackageController extends AbstractController
         ]);
     }
 
+    #[Route('/live-feed', name: 'app_package_live_feed', methods: ['GET'])]
+    public function liveFeed(Request $request, PackageRepository $packageRepository): Response
+    {
+        $filter = new PackageSearchFilter();
+        $form = $this->createForm(PackageFiltersType::class, $filter);
+        $form->handleRequest($request);
+
+        $preferredCategories = null;
+        if ($this->isGranted('ROLE_CONSUMER')) {
+            $preferredCategories = $this->getUser()->getConsumer()->getPreferredCategories();
+        }
+
+        $myBusiness = null;
+        if ($this->isGranted('ROLE_BUSINESS')) {
+            $myBusiness = $this->getUser()->getBusiness();
+        }
+
+        return $this->render('package/feed.html.twig', [
+            'packages' => $packageRepository->findByFilter($filter, $preferredCategories, $myBusiness),
+        ]);
+    }
+    #[Route('/favorites/live-feed', name: 'app_package_favorites_live', methods: ['GET'])]
+    public function favoritesLiveFeed(PackageRepository $packageRepository): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_CONSUMER');
+
+        $consumer = $this->getUser()->getConsumer();
+        $favoriteBusinesses = $consumer->getFavoriteBusinesses();
+
+        $packages = [];
+
+        if (!$favoriteBusinesses->isEmpty()) {
+            $packages = $packageRepository->createQueryBuilder('p')
+                ->where('p.business IN (:businesses)')
+                ->setParameter('businesses', $favoriteBusinesses)
+                ->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Order o WHERE o.package = p)')
+                ->getQuery()
+                ->getResult();
+        }
+
+        // Return JUST the fragment, not the whole page!
+        return $this->render('package/favorites_feed.html.twig', [
+            'packages' => $packages,
+        ]);
+    }
+
     #[Route('/{id}', name: 'app_package_view', methods: ['GET'])]
     public function view(Package $package, \App\Repository\OrderRepository $orderRepository): Response
     {

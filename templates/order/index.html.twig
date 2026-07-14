@@ -8,7 +8,6 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="display-5 fw-bold text-dark mb-0">Orders</h1>
 
-            {# Only consumers can create orders from this page #}
             {% if is_granted('ROLE_CONSUMER') %}
                 <a href="{{ path('app_order_new') }}" class="btn btn-dark btn-lg rounded-pill shadow-sm fw-bold">
                     + Create New Order
