@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\PackageSearchFilter;
+use App\Entity\Order;
 use App\Entity\Package;
 use App\Form\PackageFiltersType;
 use App\Form\PackageFormType;
@@ -103,7 +104,7 @@ final class PackageController extends AbstractController
 
         $this->denyAccessUnlessGranted('ROLE_CONSUMER');
 
-        $order = new \App\Entity\Order();
+        $order = new Order();
         $order->setPackage($package);
         $order->setConsumer($this->getUser()->getConsumer());
 
@@ -179,7 +180,6 @@ final class PackageController extends AbstractController
                 ->getResult();
         }
 
-        // Return JUST the fragment, not the whole page!
         return $this->render('package/favorites_feed.html.twig', [
             'packages' => $packages,
         ]);
