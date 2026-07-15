@@ -188,6 +188,8 @@ final class PackageController extends AbstractController
     #[Route('/{id}', name: 'app_package_view', methods: ['GET'])]
     public function view(Package $package, \App\Repository\OrderRepository $orderRepository): Response
     {
+        $this->checkPackageAccess($package);
+
         $orderExists = $orderRepository->findOneBy(['package' => $package]);
         $isAvailable = !$orderExists;
 
