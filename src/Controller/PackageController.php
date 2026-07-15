@@ -234,7 +234,7 @@ final class PackageController extends AbstractController
 
     private function checkPackageAccess(Package $package): void
     {
-        if ($this->isGranted('ROLE_ADMIN')) {
+        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_CONSUMER')) {
             return;
         }
 

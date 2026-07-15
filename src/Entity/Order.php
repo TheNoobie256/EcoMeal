@@ -17,7 +17,7 @@ class Order
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
 
-    #[ORM\OneToOne(inversedBy: 'consumer_order', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'consumer_order', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Package $package = null;
 
