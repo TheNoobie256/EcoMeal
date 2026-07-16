@@ -7,6 +7,7 @@ use App\Entity\Package;
 use App\Form\BusinessFormType;
 use App\Form\PackageFormType;
 use App\Repository\BusinessRepository;
+use App\Service\BusinessStatsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,9 +45,25 @@ final class BusinessController extends AbstractController
         ]);
     }
 
+    #[Route('/my-stats', name: 'app_business_stats', methods: ['GET'])]
+    public function dashboard(BusinessStatsService $statsService): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_BUSINESS');
+
+        $business = $this->getUser()->getBusiness();
+
+        $stats = $statsService->calculateForBusiness($business);
+
+        return $this->render('business/stats.html.twig', [
+            'stats' => $stats,
+        ]);
+    }
+
     #[Route('/{id}', name: 'app_business_view', methods: ['GET'])]
     public function view(Business $business): Response
     {
+        $this->checkBusinessAccess($business);
+
         return $this->render('business/view.html.twig', [
             'business' => $business,
         ]);
@@ -104,5 +121,22 @@ final class BusinessController extends AbstractController
         return $this->render('package/new.html.twig', [
             'form' => $form,
         ]);
+    }
+
+    private function checkBusinessAccess(Business $business): void
+    {
+        $user = $this->getUser();
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return;
+        }
+
+        if ($this->isGranted('ROLE_BUSINESS')) {
+            if ($user->getBusiness() !== $business) {
+                throw $this->createAccessDeniedException('You can only view your own business profile.');
+            }
+        } else {
+            throw $this->createAccessDeniedException('Access denied.');
+        }
     }
 }

@@ -70,6 +70,14 @@
                     </li>
                 {% endif %}
 
+                {% if is_granted('ROLE_BUSINESS') %}
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold" href="{{ path('app_business_stats') }}" style="color: #198754;">
+                            📊 My Stats
+                        </a>
+                    </li>
+                {% endif %}
+
                 {% if is_granted('ROLE_ADMIN') %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_business') }}">Businesses</a>

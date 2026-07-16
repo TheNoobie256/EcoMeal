@@ -2,24 +2,23 @@
 
 namespace App\Command;
 
-use App\Repository\OrderRepository;
-use App\Repository\PackageRepository;
+use App\Repository\BusinessRepository;
+use App\Service\BusinessStatsService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Filesystem\Filesystem;
 
 #[AsCommand(
-    name: 'app:generate-report',
-    description: 'Generates a read-only daily sales report text file.',
+    name: 'app:business-stats',
+    description: 'Displays a live statistical overview of all businesses in the terminal.',
 )]
 class GenerateReportCommand extends Command
 {
     public function __construct(
-        private PackageRepository $packageRepository,
-        private OrderRepository $orderRepository
+        private readonly BusinessRepository   $businessRepository,
+        private readonly BusinessStatsService $statsService
     ) {
         parent::__construct();
     }
@@ -27,29 +26,28 @@ class GenerateReportCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $filesystem = new Filesystem();
+        $businesses = $this->businessRepository->findAll();
 
-        $totalPackages = count($this->packageRepository->findAll());
-        $orders = $this->orderRepository->findAll();
-        $totalOrders = count($orders);
-
-        $totalRevenue = 0;
-        foreach ($orders as $order) {
-            $totalRevenue += $order->getPackage()->getPrice();
+        if (empty($businesses)) {
+            $io->warning('No businesses found in the database.');
+            return Command::SUCCESS;
         }
 
-        $date = (new \DateTime())->format('Y-m-d H:i:s');
-        $reportContent = "====================================\n";
-        $reportContent .= "DAILY SYSTEM REPORT: {$date}\n";
-        $reportContent .= "====================================\n";
-        $reportContent .= "Total Packages on Platform: {$totalPackages}\n";
-        $reportContent .= "Total Packages Sold: {$totalOrders}\n";
-        $reportContent .= "Total Generated Revenue: $" . number_format($totalRevenue, 2) . "\n\n";
+        $tableData = [];
 
-        $reportPath = 'var/reports/daily_summary.txt';
-        $filesystem->appendToFile($reportPath, $reportContent);
+        foreach ($businesses as $business) {
+            $stats = $this->statsService->calculateForBusiness($business);
 
-        $io->success('Report generated successfully at ' . $reportPath);
+            $tableData[] = [
+                $business->getName(),
+                $stats['packages_sold'],
+                '$' . number_format($stats['total_revenue'], 2)
+            ];
+        }
+
+        $io->title('Business Statistics Overview');
+        $io->table(['Business Name', 'Packages Sold', 'Total Revenue'], $tableData);
+        $io->success('Statistics generated successfully.');
 
         return Command::SUCCESS;
     }
