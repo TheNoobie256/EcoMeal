@@ -29,6 +29,7 @@ final class BusinessController extends AbstractController
     #[Route('/new', name: 'app_business_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $business = new Business();
         $form = $this->createForm(BusinessFormType::class, $business);
         $form->handleRequest($request);
